@@ -1,0 +1,87 @@
+import pygame, random
+pygame.init()
+clock = pygame.time.Clock()
+
+map = [[0 for _ in range(10)] for _ in range(10)]
+snake = [[0, 4]]
+food = [random.randrange(0, 10), random.randrange(0, 10)]
+direction = "right"
+
+def draw_board():
+    for i in range(len(map)):
+        for j in range(len(map[i])):
+            if [i, j] not in snake and [i, j] != food:
+                pygame.draw.rect(screen, BLUE, (i * 50, j * 50, 49, 49))
+            elif [i, j] == food:
+                pygame.draw.rect(screen, RED, (i * 50, j * 50, 49, 49))
+            else:
+                pygame.draw.rect(screen, GREEN, (i * 50, j * 50, 49, 49))
+
+def step(snake):
+    global food
+    if snake[-1][0] == 9 and direction == "right":
+        snake.append([0, snake[-1][1]])
+    elif snake[-1][0] == 0 and direction == "left":
+        snake.append([9, snake[-1][1]])
+    elif snake[-1][1] == 0 and direction == "up":
+        snake.append([snake[-1][0], 9])
+    elif snake[-1][1] == 9 and direction == "down":
+        snake.append([snake[-1][0], 0])
+    else:
+        if direction == "right":
+            newMove = [snake[-1][0] + 1, snake[-1][1]]
+            if newMove in snake:
+                pygame.quit()
+            snake.append(newMove)
+        elif direction == "left":
+            newMove = [snake[-1][0] - 1, snake[-1][1]]
+            if newMove in snake:
+                pygame.quit()
+            snake.append(newMove)
+        elif direction == "up":
+            newMove = [snake[-1][0], snake[-1][1] - 1]
+            if newMove in snake:
+                pygame.quit()
+            snake.append(newMove)
+        elif direction == "down":
+            newMove = [snake[-1][0], snake[-1][1] + 1]
+            if newMove in snake:
+                pygame.quit()
+            snake.append(newMove)
+    if food in snake:
+        food = [random.randrange(0, 10), random.randrange(0, 10)]
+    else:
+        snake.pop(0)
+    return snake
+
+BLACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+size_width = 500
+size_height = 500
+
+screen = pygame.display.set_mode((size_width, size_height))
+pygame.display.set_caption("Snake")
+
+
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and direction != "down":
+                direction = "up"
+            elif event.key == pygame.K_DOWN and direction != "up":
+                direction = "down"
+            elif event.key == pygame.K_RIGHT and direction != "left":
+                direction = "right"
+            elif event.key == pygame.K_LEFT and direction != "right":
+                direction = "left"
+    snake = step(snake)
+    screen.fill(BLACK)
+    draw_board()
+    pygame.display.flip()
+    clock.tick(10)
